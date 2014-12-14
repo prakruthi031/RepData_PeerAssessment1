@@ -93,8 +93,59 @@ maxindexdata <- avgdata[maxindex,]
 
 The 5-minute interval which has the maximum number of steps is **`r maxindexdata$Interval`** with **`r format(maxindexdata$Steps,digits = 7)`** steps.
 
-## Imputing missing values
+### Analysis of missing values (NA)
+
+The presence of missing days may introduce bias into some calculations or summaries of the data. So far, we have removed the NA values from our analysis. Now, let us find out its impact if it is included in the analysis.
+
+#### Total number of missing values
+
+We use the *is.na()* function to identify the NA values and mark it as logical TRUE. We then use the *sum()* function to sum this logical vector to get the total number of missing values.
+
+```{r total_na_values}
+no_na <- sum(is.na(data$steps))
+```
+
+The total number of NA values in the dataset is **`r no_na`**.
+
+#### Strategy for approximating the missing values and including them in the analysis
+
+In order to approximate the missing values, let us replace them with the mean value at the same interval across days.
+
+```{r fill_na}
+indexna <- which(is.na(data$steps))
+replacevals <- unlist(lapply(indexna, FUN = function(id){interval <- data[id,]$interval
+                                          avgdata[avgdata$Interval == interval,]$Steps}))
+newsteps <- data$steps
+newsteps[indexna] <- replacevals
+newdata <- data.frame(steps = newsteps, date = data$date, interval = data$interval)
+```
+
+Here, in the above chunk of code, the indexes of missing NA values are identified using the *which(is.na())* functions. The values to be replaced are obtained by iteratively identifying the interval corresponding to the indexes obtained above and the corresponding average no. of steps from the previously computed *avgdata*. This is done using the *lapply()* function. *newdata* contains the new data frame with no missing values. Let us cross check the absence of missing NA values by computing the total number of NA values below.
+
+```{r total_na_values_new_data}
+no_na <- sum(is.na(newdata$steps))
+```
+
+The no. of missing NA values in the new dataset is **`r no_na`**.
+
+#### Histogram of the total number of steps each day
+
+We now draw the histogram of the total number of steps per day using the new data set and find its mean and median using the code written above for the same.
+
+```{r hist_steps_new}
+hnewdata <- aggregate(newdata$steps, list(date = newdata$date), sum)
+colnames(x = hnewdata) <- c('Date','Steps')
+ggplot(hnewdata, aes(x = Steps)) + geom_histogram(binwidth = 1000, colour = "black", fill = "blue") + labs(title = 'Histogram of the total number of steps taken per day', x = "Total number of steps per day", y = "Frequency of the total number of steps per day")
+totalsteps_newmean <- mean(hnewdata$Steps, na.rm = TRUE)
+totalsteps_newmedian <- median(hnewdata$Steps, na.rm = TRUE)
+```
+
+Mean of the total number of steps per day: **`r format(totalsteps_newmean,digits = 8)`**
+
+Median of the total number of steps per day: **`r format(totalsteps_newmedian,digits = 8)`**
+
+Now, we observe that the mean remains the same but the median has changed to the same value as the mean value. The peak value has changed because the missing NA values now contribute to the total no. of steps per day. The distribution appears to be approximately the same. 
+
+### Differences in activity patterns between weekdays and weekends
 
 
-
-## Are there differences in activity patterns between weekdays and weekends?
