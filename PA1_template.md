@@ -9,7 +9,7 @@ output:
 #### Author: *Prakruthi P*
 #### Github Repository: *https://github.com/prakruthi031/RepData_PeerAssessment1*
 
-#### Date & Time: *Mon Dec 15 01:17:02 2014*
+#### Date & Time: *Mon Dec 15 02:31:29 2014*
 
 ### Introduction
 Data from a personal activity monitoring device is analyzed in this project report. The device has collected activity of an individual at 5 minute intervals throughout the day for two months *(October and November 2012)*.
@@ -182,4 +182,23 @@ Now, we observe that the mean remains the same but the median has changed to the
 
 ### Differences in activity patterns between weekdays and weekends
 
+We here observe the average activity patterns between weekends and weekdays. We use the *weekdays()* function to identify the days of the week on the basis of date. We then subset the data based on weekend and weekday using the *subset()* function. We estimate the average number of steps across all days segregated by intervals for the two subsets. We also include a factor variable for the two subsets indicating if the set belongs to weekday or weekend. We then combine the two subsets into a single set using *rbind()* function. 
 
+
+```r
+data$day <- as.factor(weekdays(data$date))
+weekend_data <- subset(data, day %in% c("Saturday","Sunday"))
+weekday_data <- subset(data, !day %in% c("Saturday","Sunday"))
+avgdata_weekend <- aggregate(weekend_data$steps, by = list(date = weekend_data$interval), FUN = mean, na.rm = TRUE)
+avgdata_weekday <- aggregate(weekday_data$steps, by = list(date = weekday_data$interval), FUN = mean, na.rm = TRUE)
+colnames(x = avgdata_weekend) <- c('Interval','Steps')
+colnames(x = avgdata_weekday) <- c('Interval','Steps')
+avgdata_weekend$day <- rep("weekend", nrow(avgdata_weekend))
+avgdata_weekday$day <- rep("weekday", nrow(avgdata_weekday))
+finaldata <- rbind(avgdata_weekday, avgdata_weekend)
+ggplot(finaldata, aes(x=Interval, y=Steps)) + geom_line(color="blue", size = 0.5) + facet_wrap(~ day, nrow = 2, ncol = 1) + labs(x="Interval", y="Average number of steps")
+```
+
+![plot of chunk weekday_weekend_comparison](figure/weekday_weekend_comparison-1.png) 
+
+We can see from the graph above that activity on weekdays peak more than the activity on weekends. We also observe that during weekdays, the avergae number of steps peak in few intervals and remain low throughout the other intervals. However, during weekends, the number of steps on an average remains around the same range across all intervals. This shows concentrated activity for a certain duration during weekdays.
