@@ -74,9 +74,24 @@ Mean of the total number of steps per day: **`r format(totalsteps_mean,digits = 
 
 Median of the total number of steps per day: **`r format(totalsteps_median,digits = 8)`**
 
-## What is the average daily activity pattern?
+### Analysis of the average daily activity pattern
 
+Next, we will analyze the average daily activity pattern. Here, our aim is to analyze the average number of steps taken, averaged across all days, for every five minute interval. We use the same *aggregate* function as above, this time, applying the average function and grouping by the interval. We use the *ggplot* function to plot the data and use *geom_line* to get layout of the time series plot.
 
+```{r avg_activity_pattern}
+avgdata <- aggregate(data$steps, by = list(date = data$interval), FUN = mean, na.rm = TRUE)
+colnames(x = avgdata) <- c('Interval','Steps')
+ggplot(avgdata, aes(x=Interval, y=Steps)) + geom_line(color="red", size=1) + labs(title="Average Daily Activity Pattern", x="Interval", y="Average number of steps")
+```
+
+Inorder to find the 5-minute interval which has the maximum number of steps (averaged across all the days), we use the *which.max()* function on the above obtained averaged Steps variable after aggregation.   
+
+```{r max_avg_no_of_steps}
+maxindex <- which.max(avgdata$Steps)
+maxindexdata <- avgdata[maxindex,]
+```
+
+The 5-minute interval which has the maximum number of steps is **`r maxindexdata$Interval`** with **`r format(maxindexdata$Steps,digits = 7)`** steps.
 
 ## Imputing missing values
 

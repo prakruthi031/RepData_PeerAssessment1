@@ -9,7 +9,7 @@ output:
 #### Author: *Prakruthi P*
 #### Github Repository: *https://github.com/prakruthi031/RepData_PeerAssessment1*
 
-#### Date & Time: *Sun Dec 14 20:13:42 2014*
+#### Date & Time: *Mon Dec 15 00:07:52 2014*
 
 ### Introduction
 Data from a personal activity monitoring device is analyzed in this project report. The device has collected activity of an individual at 5 minute intervals throughout the day for two months *(October and November 2012)*.
@@ -95,9 +95,28 @@ Mean of the total number of steps per day: **10766.189**
 
 Median of the total number of steps per day: **10765**
 
-## What is the average daily activity pattern?
+### Analysis of the average daily activity pattern
+
+Next, we will analyze the average daily activity pattern. Here, our aim is to analyze the average number of steps taken, averaged across all days, for every five minute interval. We use the same *aggregate* function as above, this time, applying the average function and grouping by the interval. We use the *ggplot* function to plot the data and use *geom_line* to get layout of the time series plot.
 
 
+```r
+avgdata <- aggregate(data$steps, by = list(date = data$interval), FUN = mean, na.rm = TRUE)
+colnames(x = avgdata) <- c('Interval','Steps')
+ggplot(avgdata, aes(x=Interval, y=Steps)) + geom_line(color="red", size=1) + labs(title="Average Daily Activity Pattern", x="Interval", y="Average number of steps")
+```
+
+![plot of chunk avg_activity_pattern](figure/avg_activity_pattern-1.png) 
+
+Inorder to find the 5-minute interval which has the maximum number of steps (averaged across all the days), we use the *which.max()* function on the above obtained averaged Steps variable after aggregation.   
+
+
+```r
+maxindex <- which.max(avgdata$Steps)
+maxindexdata <- avgdata[maxindex,]
+```
+
+The 5-minute interval which has the maximum number of steps is **835** with **206.1698** steps.
 
 ## Imputing missing values
 
